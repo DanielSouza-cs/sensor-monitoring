@@ -1,6 +1,6 @@
 # Sensor Monitoring
 
-Warehouses receive temperatuire and humidity readings from sensors over UDP and publish them to a central
+Warehouses receive temperature and humidity readings from sensors over UDP and publish them to a central
 monitoring service, which logs an alarm when a reading goes above its threshold.
 
 ```
