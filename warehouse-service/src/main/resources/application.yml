@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: warehouse-service
+  main:
+    banner-mode: off
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+  rabbitmq:
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    cache:
+      channel:
+        size: 32
+
+server:
+  port: 8080
+  shutdown: graceful
+
+warehouse:
+  id: wh-1
+  buffer-capacity: 10000
+  channels:
+    - type: TEMPERATURE
+      port: 3344
+    - type: HUMIDITY
+      port: 3355
+  publish:
+    confirm-timeout: 5s
+    max-retries: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
+  health:
+    rabbit:
+      enabled: false
+
+logging:
+  level:
+    root: WARN
+    com.sensormonitoring: INFO

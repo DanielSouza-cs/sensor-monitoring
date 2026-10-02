@@ -1,0 +1,59 @@
+
+x-warehouse: &warehouse
+  build:
+    context: .
+    args:
+      MODULE: warehouse-service
+  image: sensor-monitoring/warehouse-service
+  depends_on:
+    monitoring:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  rabbitmq:
+    image: rabbitmq:4.1-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  monitoring:
+    build:
+      context: .
+      args:
+        MODULE: monitoring-service
+    image: sensor-monitoring/monitoring-service
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health | grep -q UP"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  warehouse-1:
+    <<: *warehouse
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      WAREHOUSE_ID: wh-1
+    ports:
+      - "3344:3344/udp"
+      - "3355:3355/udp"
+
+  warehouse-2:
+    <<: *warehouse
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
+      WAREHOUSE_ID: wh-2
+    ports:
+      - "4344:3344/udp"
+      - "4355:3355/udp"

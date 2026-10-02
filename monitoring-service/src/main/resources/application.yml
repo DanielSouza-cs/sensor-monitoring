@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: monitoring-service
+  main:
+    banner-mode: off
+  rabbitmq:
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 1
+        prefetch: 250
+        default-requeue-rejected: false
+
+server:
+  port: 8081
+  shutdown: graceful
+
+monitoring:
+  thresholds:
+    TEMPERATURE: 35
+    HUMIDITY: 50
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics
+
+logging:
+  level:
+    root: WARN
+    com.sensormonitoring: INFO
